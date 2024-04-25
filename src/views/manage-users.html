@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Users</title>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/logout">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+    <h1>Manage Users</h1>
+    <ul>
+        {{#users}}
+        <li>
+            <p>Username: {{username}}</p>
+            <!-- Add delete button here -->
+            <form action="/admin/users/{{_id}}/delete" method="post">
+                <button type="submit">Delete</button>
+            </form>
+        </li>
+        {{/users}}
+    </ul>
+    <footer>
+        <ul>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms of Service</a></li>
+        </ul>
+    </footer>
+</body>
+</html>

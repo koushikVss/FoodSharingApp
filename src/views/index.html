@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scottish Pantry Network</title>
+    <link rel="stylesheet" href="/styles.css">
+
+</head>
+
+<body>
+    <nav>
+        <div>
+            <h1 style="color:white">
+                <img src="logo.png" style="width:80px;" />
+            </h1>
+        </div>
+
+        <div class="links">
+            <a href="/about">AboutUs</a>
+            <a href="/contact">ContactUs</a>
+
+            {{#loggedIn}}
+            {{#isAdmin}}
+            <a href="/admin/dashboard">Admin Dashboard</a>
+            {{/isAdmin}}
+            {{^isAdmin}}
+            <a href="/dashboard">Dashboard</a>
+
+            {{/isAdmin}}
+            <a href="/logout">Logout</a>
+            {{/loggedIn}}
+            {{^loggedIn}}
+            <a href="/items">Items</a>
+            <a href="/register">Register</a>
+            <a href="/login">Login</a>
+            {{/loggedIn}}
+        </div>
+    </nav>
+    <div class="container">
+        <img src="share.webp" style="width:800px" />
+        <h1>Welcome to Food Sharing App</h1>
+        <p>Food Sharing App is a platform where individuals can share surplus food with those in need. Whether you have
+            excess produce from your garden or leftover meals, you can help reduce food waste and support your community
+            by sharing it through our platform.</p>
+        {{#loggedIn}}
+        You can start sharing food here
+        <a href="/items/add" style="border:none;color:white;background:rgb(100,100,200);text-decoration:none;padding:10px 20px;">Share
+            Food</a>
+        {{/loggedIn}}
+        {{^loggedIn}}
+        <div style="margin-bottom:20px;">
+            Click here to find food
+            <a href="/items" style="border:none;color:white;background:rgb(100,100,200);text-decoration:none;padding:10px 20px;">
+            Find Foodd</a>
+        </div>
+
+        You can start sharing food by logging in here <a href="/login"
+            style="border:none;color:white;background:rgb(100,100,200);text-decoration:none;padding:10px 20px;">Login</a>
+        {{/loggedIn}}
+    </div>
+    <footer>
+        <p>Contact Us:</p>
+        <p>Email: info@foodsharingapp.com | Phone: 123-456-7890</p>
+    </footer>
+</body>
+
+</html>

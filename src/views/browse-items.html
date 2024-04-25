@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse Items</title>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/logout">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+    <h1>Browse Items</h1>
+    <ul>
+        {{#items}}
+        <li>
+            <h2>{{name}}</h2>
+            <p>{{description}}</p>
+            <p>Expiration Date: {{expirationDate}}</p>
+            <form action="/items/{{_id}}/select" method="post">
+                <button type="submit">Select</button>
+            </form>
+        </li>
+        {{/items}}
+    </ul>
+    <footer>
+        <ul>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms of Service</a></li>
+        </ul>
+    </footer>
+</body>
+</html>

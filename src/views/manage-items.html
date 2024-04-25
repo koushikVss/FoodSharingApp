@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Items</title>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/logout">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+    <h1>Manage Items</h1>
+    <ul>
+        {{#items}}
+        <li>
+            <p>Name: {{name}}</p>
+            <!-- Add delete button here -->
+            <form action="/admin/items/{{_id}}/delete" method="post">
+                <button type="submit">Delete</button>
+            </form>
+        </li>
+        {{/items}}
+    </ul>
+    <footer>
+        <ul>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms of Service</a></li>
+        </ul>
+    </footer>
+</body>
+</html>

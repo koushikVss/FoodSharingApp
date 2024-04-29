@@ -4,8 +4,26 @@ const mustacheExpress = require('mustache-express');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const routes = require('./src/routes/index');
+const mongoose = require('mongoose');
 
 const app = express();
+
+// Connect to MongoDB
+// const atlasUri = 'mongodb://localhost:27017/FoodSharingApp';
+const atlasUri = 'mongodb+srv://food:food@food.kz4lco6.mongodb.net/?retryWrites=true&w=majority&appName=Food'
+// const atlasUri = process.env.MONGODB_ATLAS_URI; // Replace with your actual Atlas connection string
+
+const mongoConnect = async () => {
+  try {
+    await mongoose.connect(atlasUri);
+    console.log("Connected to MongoDB Atlas successfully!");
+  } catch (error) {
+    console.error("Error connecting to MongoDB Atlas:", error);
+    process.exit(1); // Exit the application with an error code
+  }
+};
+mongoConnect();
+
 
 // Configure sessions
 app.use(session({

@@ -1,83 +1,73 @@
 const Item = require('../models/Item');
-const Datastore = require('nedb');
-const db = new Datastore({ filename: 'users.db', autoload: true });
 
-exports.browse = (req, res) => {
-  Item.findAllAvailable((err, items) => {
-    console.log("items ",items)
-    if (err) {
-      res.status(500).send('Internal Server Error');
-      return;
-    }
-    res.render('browse', { items });
-  });
-};
-
-exports.selectItem = (req, res) => {
-  const itemId = req.params.id;
-
-  Item.findById(itemId, (err, item) => {
-    if (err) {
-      res.status(500).send('Internal Server Error');
-      return;
-    }
-    if (!item) {
-      res.status(404).send('Item not found');
-      return;
-    }
-    if (item.status !== 'available' || item.expirationDate < new Date()) {
-      res.status(400).send('Item is not available');
-      return;
-    }
-
-    // Update item status to 'selected' and assign to pantry
-    Item.selectItem(itemId, (err) => {
-      if (err) {
-        res.status(500).send('Internal Server Error');
-        return;
-      }
-      res.redirect('/items');
-    });
-  });
-};
-
-exports.addItem = (req, res) => {
-  const { name, description, expirationDate } = req.body;
-  const userId = req.session.user._id;
-
-  Item.create({ name, description, expirationDate, userId, status: 'available' }, (err, newItem) => {
-    if (err) {
-      res.status(500).send('Internal Server Error');
-      return;
-    }
-    res.redirect('/dashboard');
-  });
-};
-
-// Get all items from the database
-exports.getAllItems = async () => {
-   return Item.findAllAvailable((err, item) => {
-      if (err) {
-        console.log("err ", err)
-      }
-      else {
-        return item;
-      }
-    })
-  
-  };
-
-
-  // Delete an item by ID
-
-exports.deleteItem = async (itemId) => {
+exports.browse = async (req, res) => {
   try {
-    await Item.delete(itemId);
-    await db.persistence.compactDatafile(); // Force compaction
-    return "Item deleted successfully";
+    const items = await Item.find({ status: 'available', expirationDate: { $gt: new Date() } });
+    res.render('browse', { items });
   } catch (error) {
     console.error(error);
-    throw new Error("Failed to delete user.");
+    res.status(500).send('Internal Server Error');
   }
 };
 
+exports.selectItem = async (req, res) => {
+  const itemId = req.params.id;
+
+  try {
+    const item = await Item.findById(itemId);
+
+    if (!item) {
+      return res.status(404).send('Item not found');
+    }
+
+    if (item.status !== 'available' || item.expirationDate < new Date()) {
+      return res.status(400).send('Item is not available');
+    }
+
+    // Update item status to 'selected' and assign to pantry
+    item.status = 'selected';
+    await item.save();
+
+    res.redirect('/items');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+};
+
+exports.addItem = async (req, res) => {
+  const { name, description, expirationDate } = req.body;
+  const userId = req.session.user._id;
+
+  try {
+    const newItem = await Item.create({ name, description, expirationDate, userId, status: 'available' });
+    res.redirect('/dashboard');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+};
+
+exports.getAllItems = async (id) => {
+  let params = {}
+  if (id !== undefined) {
+    params.userId = id
+  }
+  try {
+    const items = await Item.find(params);
+    return items;
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to fetch items.");
+  }
+};
+
+exports.deleteItem = async (itemId) => {
+  try {
+    await Item.findByIdAndDelete(itemId);
+    return "Item deleted successfully";
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to delete item.");
+  }
+};

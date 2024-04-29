@@ -57,30 +57,19 @@ router.post('/items/add', ItemController.addItem);
 
 // Admin Dashboard page
 router.get('/admin/dashboard', async (req, res) => {
-  // Check if user is logged in and is admin
   if (!req.session.user || req.session.user.role !== 'admin') {
     res.redirect('/login');
     return;
   }
 
-  User.findAll((err, user) => {
-    if (err) {
-      console.log("err ", err)
-    }
-    else {
-      console.log("inside users..", user)
-      Item.findAllAvailable((err, item) => {
-        if (err) {
-          console.log("err ", err)
-        }
-        else {
-
-          res.render('admin-dashboard', { users: user, items: item });
-          return
-        }
-      })
-    }
-  })
+  try {
+    const users = await User.find({});
+    const items = await Item.find({ status: 'available', expirationDate: { $gt: new Date() } });
+    res.render('admin-dashboard', { users, items });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 // Manage Users page
@@ -175,7 +164,7 @@ router.get('/dashboard', async (req, res) => {
   try {
     // Check if user is logged in
     console.log("session user ", req.session.user)
-    const items = await Item.getItemsByUserId(req.session.user._id);
+    const items = await ItemController.getAllItems(req.session.user._id);
     if (!req.session.user) {
       res.redirect('/login');
       return;

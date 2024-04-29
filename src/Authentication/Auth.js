@@ -1,69 +1,52 @@
 const User = require('../models/User');
-const Datastore = require('nedb');
-const db = new Datastore({ filename: 'users.db', autoload: true });
 
-
-exports.register = (req, res) => {
-    let { username, email, password, admin } = req.body;
-    if (admin !== undefined) {
-      admin = "admin"
-    }
-    console.log("role ", admin)
+exports.register = async (req, res) => {
+  let { username, email, password, admin } = req.body;
   
+  if (admin !== undefined) {
+    admin = "admin";
+  }
+  
+  try {
     // Check if username or email already exists
-    User.findByUsername(username, (err, user) => {
-      if (err) {
-        res.status(500).send('Internal Server Error');
-        return;
-      }
-      if (user) {
-        console.log("user exists ", user)
-  
-        res.status(400).send('Username already exists');
-        return;
-      }
-      User.findByUsername(email, (err, user) => {
-        if (err) {
-          res.status(500).send('Internal Server Error');
-          return;
-        }
-        if (user) {
-          console.log("user exists ", user)
-          res.status(400).send('Email already exists');
-          return;
-        }
-  
-        // Create new user
-        User.create({ username, email, password, role: admin }, (err, newUser) => {
-          if (err) {
-            res.status(500).send('Internal Server Error');
-            console.log("user created")
-            return;
-          }
-          res.redirect('/login');
-        });
-      });
-    });
-  };
-  
-  exports.login = (req, res) => {
-    const { username, password } = req.body;
-  
-    User.findByUsername(username, (err, user) => {
-      if (err) {
-        res.status(500).send('Internal Server Error');
-        return;
-      }
-      if (!user || user.password !== password) {
-        res.status(401).send('Invalid username or password');
-        return;
-      }
-      req.session.user = user;
-      res.redirect('/');
-    });
-  };
-  
-  exports.logout = (req, res) => {
-    req.session.destroy();
+    const existingUsername = await User.findOne({ username });
+    if (existingUsername) {
+      return res.status(400).send('Username already exists');
+    }
+
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
+      return res.status(400).send('Email already exists');
+    }
+
+    // Create new user
+    const newUser = new User({ username, email, password, role: admin });
+    await newUser.save();
+    res.redirect('/login');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+};
+
+exports.login = async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    const user = await User.findOne({ username });
+    if (!user || user.password !== password) {
+      return res.status(401).send('Invalid username or password');
+    }
+
+    req.session.user = user;
     res.redirect('/');
-  };
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+};
+
+exports.logout = (req, res) => {
+  req.session.destroy();
+  res.redirect('/');
+};

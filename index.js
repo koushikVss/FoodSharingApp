@@ -10,7 +10,8 @@ const app = express();
 
 // Connect to MongoDB
 // const atlasUri = 'mongodb://localhost:27017/FoodSharingApp';
-const atlasUri = 'mongodb+srv://food:food@food.kz4lco6.mongodb.net/?retryWrites=true&w=majority&appName=Food'
+// const atlasUri = 'mongodb+srv://food:food@food.kz4lco6.mongodb.net/?retryWrites=true&w=majority&appName=Food'
+const atlasUri = 'mongodb+srv://ahano:41kempXpIvMD4aEu@foodshareapp.7feuwwn.mongodb.net/?retryWrites=true&w=majority&appName=FoodShareApp'
 // const atlasUri = process.env.MONGODB_ATLAS_URI; // Replace with your actual Atlas connection string
 
 const mongoConnect = async () => {
@@ -55,7 +56,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', routes);
+// app.use('/', routes);
+app.use('/', ()=>{
+  res.render('index', { loggedIn: req.session.user ? true : false, isAdmin: req.session.user && req.session.user.role === 'admin' ? true : false });
+
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

@@ -56,11 +56,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// app.use('/', routes);
-app.use('/', ()=>{
-  res.render('index', { loggedIn: req.session.user ? true : false, isAdmin: req.session.user && req.session.user.role === 'admin' ? true : false });
-
-});
+app.use('/', routes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
